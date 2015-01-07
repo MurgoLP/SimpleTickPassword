@@ -126,6 +126,7 @@ public class SimpleTickPassword extends JFrame {
 		public PasswordEntry(char keyChar, long keyMilliseconds) {
 			KeyChar = keyChar;
 			KeyMilliseconds = keyMilliseconds;
+			//these are things
 		}
 	}
 
