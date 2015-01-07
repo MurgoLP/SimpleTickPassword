@@ -19,7 +19,7 @@ import javax.swing.JTextField;
 
 @SuppressWarnings("serial")
 public class SimpleTickPassword extends JFrame {
-	public static final int MillisecondsPerTick = 1500;
+	public static final int MillisecondsPerTick = 1000;
 
 	public static void main(String[] args) {
 		new SimpleTickPassword();
@@ -28,6 +28,7 @@ public class SimpleTickPassword extends JFrame {
 	private JButton OKbutton, RESETButton;
 	private JTextField textField = new JTextField(15);
 	private TimedKeyListener keyListener;
+	private JLabel timerText = new JLabel();
 
 	public SimpleTickPassword() {
 		this.setLocation(700, 500);
@@ -37,7 +38,7 @@ public class SimpleTickPassword extends JFrame {
 		this.setTitle("Simple Tick Password Protect");
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		keyListener = new TimedKeyListener(textField);
+		keyListener = new TimedKeyListener(textField, timerText);
 		ButtonListener ButtonListener1 = new ButtonListener(keyListener);
 		JPanel Canvas = new JPanel();
 
@@ -48,6 +49,8 @@ public class SimpleTickPassword extends JFrame {
 		RESETButton = new JButton("Reset");
 		RESETButton.addActionListener(ButtonListener1);
 		Canvas.add(RESETButton);
+		Canvas.add(timerText);
+		// timerText.setText("text");
 		Canvas.add(OKbutton);
 		this.add(Canvas);
 		this.setVisible(true);
@@ -68,13 +71,13 @@ public class SimpleTickPassword extends JFrame {
 				KeyEvent.VK_EQUALS, KeyEvent.VK_MULTIPLY, KeyEvent.VK_QUOTE,
 				KeyEvent.VK_PERIOD, KeyEvent.VK_SLASH, KeyEvent.VK_SUBTRACT,
 				KeyEvent.VK_OPEN_BRACKET, KeyEvent.VK_COLON, };
+		private JLabel timerText;
 
-		public TimedKeyListener(JTextField _textField) {
+		public TimedKeyListener(JTextField _textField, JLabel _timerText) {
 			textField = _textField;
+			timerText = _timerText;
 		}
 
-		// int key;
-		// public TimedKeyListener(int _key) { key = _key; }
 		public void keyPressed(KeyEvent e) {
 			if (!shouldIgnoreKey(e.getExtendedKeyCode())) {
 				if (startTimes.isEmpty()) {
@@ -83,12 +86,17 @@ public class SimpleTickPassword extends JFrame {
 								System.currentTimeMillis());
 						System.out.println(e.getKeyChar());
 					}
+				} else if (startTimes.containsKey(e.getKeyChar())) {
+					long numberTicks = (System.currentTimeMillis() - startTimes
+							.get(e.getKeyChar())) / MillisecondsPerTick;
+					timerText.setText("Ticks: " + Long.toString(numberTicks));
 				}
 			}
 		}
 
 		public void keyReleased(KeyEvent e) {
-			if (!shouldIgnoreKey(e.getExtendedKeyCode()) && startTimes.containsKey(e.getKeyChar())) {
+			if (!shouldIgnoreKey(e.getExtendedKeyCode())
+					&& startTimes.containsKey(e.getKeyChar())) {
 				long endTime = System.currentTimeMillis();
 				long startTime = startTimes.get(e.getKeyChar());
 				long deltaTime = endTime - startTime;
@@ -99,6 +107,7 @@ public class SimpleTickPassword extends JFrame {
 				String s = textField.getText();
 				s += e.getKeyChar();
 				textField.setText(s);
+				timerText.setText("");
 			}
 		}
 
@@ -126,7 +135,6 @@ public class SimpleTickPassword extends JFrame {
 		public PasswordEntry(char keyChar, long keyMilliseconds) {
 			KeyChar = keyChar;
 			KeyMilliseconds = keyMilliseconds;
-			//these are things
 		}
 	}
 
@@ -164,19 +172,26 @@ public class SimpleTickPassword extends JFrame {
 							}
 							if (pw.equals(password)) {
 								for (int i = 0; i < password.length(); ++i) {
-									if (charTimes[i] != keyListener.PasswordEntries.get(i).KeyMilliseconds / MillisecondsPerTick) {
-										JOptionPane.showMessageDialog(SimpleTickPassword.this, "Incorrect password");
+									if (charTimes[i] != keyListener.PasswordEntries
+											.get(i).KeyMilliseconds
+											/ MillisecondsPerTick) {
+										JOptionPane.showMessageDialog(
+												SimpleTickPassword.this,
+												"Incorrect password");
 										resetField();
 										break;
 									}
 								}
 								if (textField.getText().length() > 0) {
-									JOptionPane.showMessageDialog(SimpleTickPassword.this, "Password correct!");
+									JOptionPane.showMessageDialog(
+											SimpleTickPassword.this,
+											"Password correct!");
 									System.exit(0);
 								}
-							}
-							else {
-								JOptionPane.showMessageDialog(SimpleTickPassword.this, "Incorrect password");
+							} else {
+								JOptionPane.showMessageDialog(
+										SimpleTickPassword.this,
+										"Incorrect password");
 								resetField();
 							}
 						} catch (Exception b) {
@@ -237,9 +252,12 @@ public class SimpleTickPassword extends JFrame {
 				resetField();
 			}
 		}
+
 		private void resetField() {
 			textField.setText(new String());
 			keyListener.PasswordEntries.clear();
+			timerText.setText("");
+			keyListener.startTimes.clear();
 		}
 	}
 }
