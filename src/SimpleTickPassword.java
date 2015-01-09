@@ -20,6 +20,7 @@ import javax.swing.JTextField;
 @SuppressWarnings("serial")
 public class SimpleTickPassword extends JFrame {
 	public static final int MillisecondsPerTick = 1000;
+	public static String PropertiesPath; 
 
 	public static void main(String[] args) {
 		new SimpleTickPassword();
@@ -31,6 +32,7 @@ public class SimpleTickPassword extends JFrame {
 	private JLabel timerText = new JLabel();
 
 	public SimpleTickPassword() {
+		
 		this.setLocation(700, 500);
 		this.setAlwaysOnTop(true);
 		this.setResizable(false);
@@ -50,12 +52,13 @@ public class SimpleTickPassword extends JFrame {
 		RESETButton.addActionListener(ButtonListener1);
 		Canvas.add(RESETButton);
 		Canvas.add(timerText);
-		// timerText.setText("text");
 		Canvas.add(OKbutton);
 		this.add(Canvas);
 		this.setVisible(true);
 		textField.addKeyListener(keyListener);
 		textField.setEditable(false);
+		
+		PropertiesPath = "db.properties";
 	}
 
 	public class TimedKeyListener implements KeyListener {
@@ -154,11 +157,11 @@ public class SimpleTickPassword extends JFrame {
 							password, JOptionPane.INFORMATION_MESSAGE, null);
 					resetField();
 				} else {
-					Path path = Paths.get("src/resources/db.properties");
+					Path path = Paths.get(PropertiesPath);
 					if (Files.exists(path)) {
 						FileReader read = null;
 						try {
-							read = new FileReader("src/resources/db.properties");
+							read = new FileReader(PropertiesPath);
 							Properties properties = new Properties();
 							properties.load(read);
 							String pw = properties.getProperty("password");
@@ -198,7 +201,7 @@ public class SimpleTickPassword extends JFrame {
 							b.printStackTrace();
 							JOptionPane.showMessageDialog(
 									SimpleTickPassword.this,
-									"Error reading password file : "
+									"Error reading password file "+ PropertiesPath + ": " 
 											+ b.getMessage());
 						} finally {
 							try {
@@ -206,7 +209,7 @@ public class SimpleTickPassword extends JFrame {
 							} catch (Exception d) {
 								JOptionPane.showMessageDialog(
 										SimpleTickPassword.this,
-										"I couldn't close bd.properties");
+										"I couldn't close " + PropertiesPath);
 							}
 						}
 					}
@@ -214,7 +217,7 @@ public class SimpleTickPassword extends JFrame {
 						FileWriter write = null;
 						try {
 							write = new FileWriter(
-									"src/resources/db.properties", false);
+									PropertiesPath, false);
 							Properties properties = new Properties();
 							properties.setProperty("password",
 									textField.getText());
@@ -234,7 +237,7 @@ public class SimpleTickPassword extends JFrame {
 							b.printStackTrace();
 							JOptionPane.showMessageDialog(
 									SimpleTickPassword.this,
-									"Error writing password file : "
+									"Error writing password file " + PropertiesPath +" : " 
 											+ b.getMessage());
 						} finally {
 							try {
@@ -242,7 +245,7 @@ public class SimpleTickPassword extends JFrame {
 							} catch (Exception d) {
 								JOptionPane.showMessageDialog(
 										SimpleTickPassword.this,
-										"I couldn't close db.properties");
+										"I couldn't close " + PropertiesPath);
 							}
 						}
 					}
